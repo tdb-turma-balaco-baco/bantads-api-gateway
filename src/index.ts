@@ -26,7 +26,7 @@ app.use(helmet());
 app.use(logger("dev"));
 app.use(cookieParser());
 
-const usuariosServiceProxy = httpProxy("http://localhost:8080/");
+const usuariosServiceProxy = httpProxy(process.env.PROXY_USUARIOS_URL ?? "");
 const boisServiceProxy = httpProxy("http://localhost:5001/");
 
 route.get("/", (req: Request, res: Response) =>

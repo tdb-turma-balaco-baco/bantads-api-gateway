@@ -9,16 +9,14 @@ const loginProxy = httpProxy(process.env.PROXY_AUTH_URL + "/login", {
 	userResDecorator: (proxyRes, proxyResData, userReq, userRes): any => {
 		if (proxyRes.statusCode === HttpStatus.SUCCESS) {
 			const retorno = Buffer.from(proxyResData).toString('utf-8');
-			const obj = JSON.parse(retorno);
+			const id = JSON.parse(retorno);
 
-			const cpf = obj.cpf;
-
-			const token = jwt.sign({ cpf }, process.env.SECRET as Secret, {
+			const token = jwt.sign({ id }, process.env.SECRET as Secret, {
 				expiresIn: 300,
 			});
 
 			userRes.status(HttpStatus.SUCCESS);
-			return { auth: true, token, data: obj };
+			return { auth: true, token };
 		}
 
 		userRes.status(HttpStatus.UNAUTHORIZED);

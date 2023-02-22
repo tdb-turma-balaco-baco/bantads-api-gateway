@@ -33,7 +33,7 @@ gerenteApi.get(
 								nome: g.name,
 								email: g.email,
 								telefone: g.phone,
-								totalClients: g.totalAccounts,
+								totalClientes: g.totalAccounts,
 							};
 							gerentes.push(gerente);
 						}

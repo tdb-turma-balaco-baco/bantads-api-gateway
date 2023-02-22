@@ -5,6 +5,22 @@ import httpProxy from "express-http-proxy";
 
 export const contaApi = express.Router();
 
+interface Client {
+	name?: string;
+	cpf?: string;
+	limit?: number;
+	managerName?: string;
+	balance?: number;
+}
+
+interface Cliente {
+	nome?: string;
+	cpf?: string;
+	limite?: number;
+	nomeGerente?: string;
+	saldo?: number;
+}
+
 contaApi.get(
 	"/client/:cpf/clientDetails",
 	(req: Request, res: Response, next: NextFunction) => {
@@ -46,15 +62,10 @@ contaApi.get("/client/list", (req: Request, res: Response, next: NextFunction) =
 		): any => {
 			if (proxyRes.statusCode === HttpStatus.SUCCESS) {
 				const str = Buffer.from(proxyResData).toString("utf-8");
-				const clientes: any = [];
+				const clientes: Cliente[] = [];
+
 				JSON.parse(str).array.forEach(
-					(c: {
-						name: any;
-						cpf: any;
-						limit: any;
-						managerName: any;
-						balance: any;
-					}) => {
+					(c: Client) => {
 						const cliente = {
 							nome: c.name,
 							cpf: c.cpf,
@@ -74,6 +85,7 @@ contaApi.get("/client/list", (req: Request, res: Response, next: NextFunction) =
 		},
 	})(req, res, next);
 });
+
 //Arrumar
 contaApi.get(
 	"/:contaId/transactionsHistory",
@@ -96,22 +108,6 @@ contaApi.get(
 				if (proxyRes.statusCode === HttpStatus.SUCCESS) {
 					const str = Buffer.from(proxyResData).toString("utf-8");
 					const transacoes: Cliente[] = [];
-
-					interface Client {
-						name?: string;
-						cpf?: string;
-						limit?: number;
-						managerName?: string;
-						balance?: number;
-					}
-
-					interface Cliente {
-						nome?: string;
-						cpf?: string;
-						limite?: number;
-						nomeGerente?: string;
-						saldo?: number;
-					}
 
 					JSON.parse(str).array.forEach((c: Client) => {
 							const cliente: Cliente = {
@@ -149,6 +145,7 @@ contaApi.get(
 				if (proxyRes.statusCode === HttpStatus.SUCCESS) {
 					const str = Buffer.from(proxyResData).toString("utf-8");
 					const contas: any = [];
+
 					JSON.parse(str).array.forEach(
 						(c: { accountNumber: any; cpf: any; name: any; wage: any }) => {
 							const conta = {
@@ -239,6 +236,7 @@ contaApi.get(
 	}
 );
 
+// Composition
 contaApi.get(
 	"/manager/:cpf/clientsBalance",
 	(req: Request, res: Response, next: NextFunction) => {
@@ -273,7 +271,7 @@ contaApi.post(
 		httpProxy(process.env.PROXY_CONTA_URL + "", {
 			proxyReqBodyDecorator(bodyContent, _srcReq) {
 				const retBody = {
-					accountId: bodyContent.contaId,
+					accountId: bodyContent.idContaOrigem,
 					amount: bodyContent.valor,
 				};
 				bodyContent = retBody;
@@ -303,7 +301,7 @@ contaApi.post(
 		httpProxy(process.env.PROXY_CONTA_URL + "", {
 			proxyReqBodyDecorator(bodyContent, _srcReq) {
 				const retBody = {
-					accountId: bodyContent.contaId,
+					accountId: bodyContent.idContaOrigem,
 					amount: bodyContent.valor,
 				};
 				bodyContent = retBody;
@@ -326,15 +324,16 @@ contaApi.post(
 		})(req, res, next);
 	}
 );
+
 contaApi.post(
 	"/transaction/transfer",
 	(req: Request, res: Response, next: NextFunction) => {
 		httpProxy(process.env.PROXY_CONTA_URL + "", {
 			proxyReqBodyDecorator(bodyContent, _srcReq) {
 				const retBody = {
-					accountId: bodyContent.contaId,
+					accountId: bodyContent.idContaOrigem,
 					amount: bodyContent.valor,
-					destinationAccountId: bodyContent.contaDestino,
+					destinationAccountId: bodyContent.idContaDestino,
 				};
 				bodyContent = retBody;
 				return bodyContent;

@@ -3,8 +3,30 @@ import jwt,{ Secret } from "jsonwebtoken";
 import { HttpStatus } from "../interfaces";
 import httpProxy from "express-http-proxy";
 import { IncomingMessage } from "http";
+import verifyJWT from "../auth/verifyJWT";
 
-export const authApi = express.Router();
+const authApi = express.Router();
+
+authApi.post("/login", (req: Request, res: Response) => {
+	if (req.body.user === "admin" && req.body.password === "admin") {
+		// Auth OK
+		const id = 1;
+		const token = jwt.sign({ id }, process.env.SECRET as Secret, {
+			expiresIn: 300, // 5min
+		});
+		return res.json({ auth: true, token });
+	}
+
+	return res.status(500).json({ message: "Login inválido!" });
+});
+
+const usuariosServiceProxy = httpProxy("http://localhost:3000/");
+authApi.get(
+	"/usuarios",
+	verifyJWT,
+	(req: Request, res: Response, next: NextFunction) =>
+		usuariosServiceProxy(req, res, next)
+);
 
 authApi.post("/auth/login", (req: Request, res: Response, next: NextFunction) => {
 	httpProxy(process.env.PROXY_AUTH_URL + "", {
@@ -43,3 +65,5 @@ authApi.post("/auth/login", (req: Request, res: Response, next: NextFunction) =>
 authApi.post("/logout", (req: Request, res: Response) =>
 	res.json({ auth: false, token: null })
 );
+
+module.exports = authApi;

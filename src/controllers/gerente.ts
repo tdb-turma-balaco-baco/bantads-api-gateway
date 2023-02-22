@@ -3,8 +3,7 @@ import httpProxy from "express-http-proxy";
 import { IncomingMessage } from "http";
 import { HttpStatus } from "../interfaces";
 
-
-export const gerenteApi = express.Router();
+const gerenteApi = express.Router();
 
 gerenteApi.get(
 	"/manager/list",
@@ -135,3 +134,5 @@ gerenteApi.delete(
 		})(req, res, next);
 	}
 );
+
+module.exports = gerenteApi;

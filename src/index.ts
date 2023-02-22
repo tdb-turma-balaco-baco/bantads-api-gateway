@@ -5,10 +5,6 @@ import cookieParser from "cookie-parser";
 import logger from "morgan";
 import helmet from "helmet";
 import cors from "cors";
-import { authApi } from "./controllers/auth";
-import { clienteApi } from "./controllers/cliente";
-import { gerenteApi } from "./controllers/gerente";
-import { contaApi } from "./controllers/conta";
 
 const app = express();
 const route = Router();
@@ -24,21 +20,20 @@ app.use(logger("dev"));
 app.use(cookieParser());
 
 //LOGIN
-app.use(authApi);
+app.use(require('./controllers/auth'));
 //FIM LOGIN
 
 //CLIENTE - INICIO
-app.use(clienteApi);
+app.use(require('./controllers/cliente'));
 //FIM CLIENTE
 
 //INICIO GERENTE
-app.use(gerenteApi);
+app.use(require('./controllers/gerente'));
 //FIM GERENTE
 
 //CONTA
-app.use(contaApi);
+app.use(require('./controllers/conta'));
 //FIM CONTA
-
 
 app.listen(process.env.PORT, () => {
 	console.log(

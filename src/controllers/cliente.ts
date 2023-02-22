@@ -3,7 +3,7 @@ import httpProxy from "express-http-proxy";
 import { IncomingMessage } from "http";
 import { HttpStatus } from "../interfaces";
 
-export const clienteApi = express.Router();
+const clienteApi = express.Router();
 
 clienteApi.get(
 	"/client/:cpf/details",
@@ -225,3 +225,5 @@ clienteApi.put(
 		})(req, res, next);
 	}
 );
+
+module.exports = clienteApi;

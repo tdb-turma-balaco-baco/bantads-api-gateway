@@ -3,7 +3,7 @@ import { IncomingMessage } from "http";
 import { HttpStatus } from "../interfaces";
 import httpProxy from "express-http-proxy";
 
-export const contaApi = express.Router();
+const contaApi = express.Router();
 
 interface Client {
 	name?: string;
@@ -355,3 +355,5 @@ contaApi.post(
 		})(req, res, next);
 	}
 );
+
+module.exports = contaApi;

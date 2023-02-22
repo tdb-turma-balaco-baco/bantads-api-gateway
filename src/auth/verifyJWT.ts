@@ -3,7 +3,7 @@ import jwt, { JwtPayload, Secret } from "jsonwebtoken";
 import { HttpStatus, TypedRequest } from "../interfaces";
 
 export default function verifyJWT(
-	req: TypedRequest<{ userId: number }>,
+	req: TypedRequest<{ cpf: string }>,
 	res: Response,
 	next: NextFunction
 ) {
@@ -22,7 +22,7 @@ export default function verifyJWT(
 					.status(HttpStatus.INTERNAL_ERROR)
 					.json({ auth: false, message: "Falha na autenticação do token" });
 			}
-			req.body.userId = (decoded as JwtPayload).id;
+			req.body.cpf = (decoded as JwtPayload).id;
 			next();
 		});
 }

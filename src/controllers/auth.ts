@@ -1,22 +1,33 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import jwt,{ Secret } from "jsonwebtoken";
 import { HttpStatus } from "../interfaces";
+import httpProxy from "express-http-proxy";
 
-// Rotas de Autenticação
 export const authApi = express.Router();
 
-authApi.post("/login", (req: Request, res: Response) => {
-	if (req.body.user === "admin" && req.body.password === "admin") {
-		// Auth OK
-		const id = 1;
-		const token = jwt.sign({ id }, process.env.SECRET as Secret, {
-			expiresIn: 300, // 5min
-		});
+const loginProxy = httpProxy(process.env.PROXY_AUTH_URL + "/login", {
+	userResDecorator: (proxyRes, proxyResData, userReq, userRes): any => {
+		if (proxyRes.statusCode === HttpStatus.SUCCESS) {
+			const retorno = Buffer.from(proxyResData).toString('utf-8');
+			const obj = JSON.parse(retorno);
 
-		return res.status(HttpStatus.SUCCESS).json({ auth: true, token });
+			const cpf = obj.cpf;
+
+			const token = jwt.sign({ cpf }, process.env.SECRET as Secret, {
+				expiresIn: 300,
+			});
+
+			userRes.status(HttpStatus.SUCCESS);
+			return { auth: true, token, data: obj };
+		}
+
+		userRes.status(HttpStatus.UNAUTHORIZED);
+		return { message: "Login inválido!" };
 	}
+});
 
-	return res.status(HttpStatus.UNAUTHORIZED).json({ message: "Login inválido!" });
+authApi.post("/login", (req: Request, res: Response, next: NextFunction) => {
+	loginProxy(req, res, next);
 });
 
 authApi.post("/logout", (req: Request, res: Response) =>

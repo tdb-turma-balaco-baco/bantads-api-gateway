@@ -6,7 +6,7 @@ import { IncomingMessage } from "http";
 
 export const authApi = express.Router();
 
-authApi.post("/login", (req: Request, res: Response, next: NextFunction) => {
+authApi.post("/auth/login", (req: Request, res: Response, next: NextFunction) => {
 	httpProxy(process.env.PROXY_AUTH_URL + "", {
 		proxyReqBodyDecorator(bodyContent, _srcReq) {
 			const retBody = {

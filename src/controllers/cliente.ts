@@ -66,7 +66,7 @@ clienteApi.get(
 					const objBody = JSON.parse(str);
 
 					const endereco = {
-						cpf: objBody.cpf,
+						CPF: objBody.cpf,
 						cidade: objBody.city,
 						estado: objBody.state,
 					};
@@ -97,13 +97,14 @@ clienteApi.post(
 						type: bodyContent.endereco.tipoEndereco,
 						street: bodyContent.endereco.logradouro,
 						complement: bodyContent.endereco.complemento,
-						cep: bodyContent.endereco.CEP,
+						cep: bodyContent.endereco.cep,
 						city: bodyContent.endereco.cidade,
 						number: bodyContent.endereco.numero,
 						state: bodyContent.endereco.estado,
 					},
 				};
 				bodyContent = retBody;
+				console.log(retBody, bodyContent);
 				return bodyContent;
 			},
 			userResDecorator: (
@@ -139,7 +140,7 @@ clienteApi.put(
 						type: bodyContent.endereco.tipoEndereco,
 						street: bodyContent.endereco.logradouro,
 						complement: bodyContent.endereco.complemento,
-						cep: bodyContent.endereco.CEP,
+						cep: bodyContent.endereco.cep,
 						city: bodyContent.endereco.cidade,
 						number: bodyContent.endereco.numero,
 						state: bodyContent.endereco.estado,

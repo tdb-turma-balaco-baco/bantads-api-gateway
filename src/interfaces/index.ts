@@ -11,3 +11,32 @@ export enum HttpStatus {
 export interface TypedRequest<T> extends Request {
 	body: T;
 }
+
+export enum TypePerfil {
+	ADMIN = "ADMIN",
+	MANAGER = "GERENTE",
+	CLIENT = "CLIENTE",
+}
+
+export interface PendingAccount {
+	accountNumber: number;
+	cpf: string;
+	name: string;
+	wage: number;
+}
+
+export interface Client {
+	name?: string;
+	cpf?: string;
+	limit?: number;
+	managerName?: string;
+	balance?: number;
+}
+
+export interface Cliente {
+	nome?: string;
+	CPF?: string;
+	limite?: number;
+	nomeGerente?: string;
+	saldo?: number;
+}

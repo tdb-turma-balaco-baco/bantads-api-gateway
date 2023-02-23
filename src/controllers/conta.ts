@@ -1,30 +1,15 @@
 import express, { NextFunction, Request, Response } from "express";
 import { IncomingMessage } from "http";
-import { HttpStatus } from "../interfaces";
+import { Client, Cliente, HttpStatus, PendingAccount } from "../interfaces";
 import httpProxy from "express-http-proxy";
 
 const contaApi = express.Router();
 
-interface Client {
-	name?: string;
-	cpf?: string;
-	limit?: number;
-	managerName?: string;
-	balance?: number;
-}
-
-interface Cliente {
-	nome?: string;
-	cpf?: string;
-	limite?: number;
-	nomeGerente?: string;
-	saldo?: number;
-}
 
 contaApi.get(
 	"/client/:cpf/clientDetails",
 	(req: Request, res: Response, next: NextFunction) => {
-		httpProxy(process.env.PROXY_CONTA_URL + "", {
+		httpProxy(process.env.PROXY_TRANSACOES_URL + "", {
 			userResDecorator: (
 				proxyRes: IncomingMessage,
 				proxyResData: any,
@@ -36,7 +21,7 @@ contaApi.get(
 					const objBody = JSON.parse(str);
 					const cliente = {
 						nome: objBody.name,
-						cpf: objBody.cpf,
+						CPF: objBody.cpf,
 						limite: objBody.limit,
 						nomeGerente: objBody.managerName,
 						saldo: objBody.balance,
@@ -53,7 +38,7 @@ contaApi.get(
 );
 
 contaApi.get("/client/list", (req: Request, res: Response, next: NextFunction) => {
-	httpProxy(process.env.PROXY_CONTA_URL + "", {
+	httpProxy(process.env.PROXY_TRANSACOES_URL + "", {
 		userResDecorator: (
 			proxyRes: IncomingMessage,
 			proxyResData: any,
@@ -68,7 +53,7 @@ contaApi.get("/client/list", (req: Request, res: Response, next: NextFunction) =
 					(c: Client) => {
 						const cliente = {
 							nome: c.name,
-							cpf: c.cpf,
+							CPF: c.cpf,
 							limite: c.limit,
 							nomeGerente: c.managerName,
 							saldo: c.balance,
@@ -90,7 +75,7 @@ contaApi.get("/client/list", (req: Request, res: Response, next: NextFunction) =
 contaApi.get(
 	"/:contaId/transactionsHistory",
 	(req: Request, res: Response, next: NextFunction) => {
-		httpProxy(process.env.PROXY_CONTA_URL + "", {
+		httpProxy(process.env.PROXY_TRANSACOES_URL + "", {
 			proxyReqBodyDecorator(bodyContent, _srcReq) {
 				const retBody = {
 					startDate: bodyContent.dataInicio,
@@ -112,7 +97,7 @@ contaApi.get(
 					JSON.parse(str).array.forEach((c: Client) => {
 							const cliente: Cliente = {
 								nome: c.name,
-								cpf: c.cpf,
+								CPF: c.cpf,
 								limite: c.limit,
 								nomeGerente: c.managerName,
 								saldo: c.balance,
@@ -135,7 +120,7 @@ contaApi.get(
 contaApi.get(
 	"/manager/:cpf/pendingAccounts",
 	(req: Request, res: Response, next: NextFunction) => {
-		httpProxy(process.env.PROXY_CONTA_URL + "", {
+		httpProxy(process.env.PROXY_TRANSACOES_URL + "", {
 			userResDecorator: (
 				proxyRes: IncomingMessage,
 				proxyResData: any,
@@ -144,21 +129,24 @@ contaApi.get(
 			): any => {
 				if (proxyRes.statusCode === HttpStatus.SUCCESS) {
 					const str = Buffer.from(proxyResData).toString("utf-8");
-					const contas: any = [];
+					const clientes: any = [];
 
-					JSON.parse(str).array.forEach(
-						(c: { accountNumber: any; cpf: any; name: any; wage: any }) => {
+					JSON.parse(str).array?.forEach(
+						(c: PendingAccount) => {
 							const conta = {
-								idConta: c.accountNumber,
-								cpf: c.cpf,
+								conta: {
+									id: c.accountNumber,
+								},
+								CPF: c.cpf,
 								nome: c.name,
 								salario: c.wage,
 							};
-							contas.push(conta);
+							clientes.push(conta);
 						}
 					);
+
 					userRes.status(HttpStatus.SUCCESS);
-					return { contas };
+					return { contas: clientes };
 				} else {
 					userRes.status(HttpStatus.INTERNAL_ERROR);
 					return { message: "Não foi possível recuperar os clientes" };
@@ -171,7 +159,7 @@ contaApi.get(
 contaApi.get(
 	"/manager/:cpf/clients",
 	(req: Request, res: Response, next: NextFunction) => {
-		httpProxy(process.env.PROXY_CONTA_URL + "", {
+		httpProxy(process.env.PROXY_TRANSACOES_URL + "", {
 			userResDecorator: (
 				proxyRes: IncomingMessage,
 				proxyResData: any,
@@ -184,7 +172,7 @@ contaApi.get(
 					JSON.parse(str).array.forEach(
 						(c: { cpf: any; name: any; balance: any }) => {
 							const cliente = {
-								cpf: c.cpf,
+								CPF: c.cpf,
 								nome: c.name,
 								saldo: c.balance,
 							};
@@ -205,7 +193,7 @@ contaApi.get(
 contaApi.get(
 	"/manager/:cpf/topFiveClients",
 	(req: Request, res: Response, next: NextFunction) => {
-		httpProxy(process.env.PROXY_CONTA_URL + "", {
+		httpProxy(process.env.PROXY_TRANSACOES_URL + "", {
 			userResDecorator: (
 				proxyRes: IncomingMessage,
 				proxyResData: any,
@@ -218,7 +206,7 @@ contaApi.get(
 					JSON.parse(str).array.forEach(
 						(c: { cpf: any; name: any; balance: any }) => {
 							const cliente = {
-								cpf: c.cpf,
+								CPF: c.cpf,
 								nome: c.name,
 								saldo: c.balance,
 							};
@@ -240,7 +228,7 @@ contaApi.get(
 contaApi.get(
 	"/manager/:cpf/clientsBalance",
 	(req: Request, res: Response, next: NextFunction) => {
-		httpProxy(process.env.PROXY_CONTA_URL + "", {
+		httpProxy(process.env.PROXY_TRANSACOES_URL + "", {
 			userResDecorator: (
 				proxyRes: IncomingMessage,
 				proxyResData: any,
@@ -268,7 +256,7 @@ contaApi.get(
 contaApi.post(
 	"/transaction/deposit",
 	(req: Request, res: Response, next: NextFunction) => {
-		httpProxy(process.env.PROXY_CONTA_URL + "", {
+		httpProxy(process.env.PROXY_TRANSACOES_URL + "", {
 			proxyReqBodyDecorator(bodyContent, _srcReq) {
 				const retBody = {
 					accountId: bodyContent.idContaOrigem,
@@ -298,7 +286,7 @@ contaApi.post(
 contaApi.post(
 	"/transaction/withdraw",
 	(req: Request, res: Response, next: NextFunction) => {
-		httpProxy(process.env.PROXY_CONTA_URL + "", {
+		httpProxy(process.env.PROXY_TRANSACOES_URL + "", {
 			proxyReqBodyDecorator(bodyContent, _srcReq) {
 				const retBody = {
 					accountId: bodyContent.idContaOrigem,
@@ -328,7 +316,7 @@ contaApi.post(
 contaApi.post(
 	"/transaction/transfer",
 	(req: Request, res: Response, next: NextFunction) => {
-		httpProxy(process.env.PROXY_CONTA_URL + "", {
+		httpProxy(process.env.PROXY_TRANSACOES_URL + "", {
 			proxyReqBodyDecorator(bodyContent, _srcReq) {
 				const retBody = {
 					accountId: bodyContent.idContaOrigem,

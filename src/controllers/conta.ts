@@ -5,7 +5,6 @@ import httpProxy from "express-http-proxy";
 
 const contaApi = express.Router();
 
-
 contaApi.get(
 	"/client/:cpf/clientDetails",
 	(req: Request, res: Response, next: NextFunction) => {
@@ -37,20 +36,21 @@ contaApi.get(
 	}
 );
 
-contaApi.get("/client/list", (req: Request, res: Response, next: NextFunction) => {
-	httpProxy(process.env.PROXY_TRANSACOES_URL + "", {
-		userResDecorator: (
-			proxyRes: IncomingMessage,
-			proxyResData: any,
-			userReq: Request,
-			userRes: Response
-		): any => {
-			if (proxyRes.statusCode === HttpStatus.SUCCESS) {
-				const str = Buffer.from(proxyResData).toString("utf-8");
-				const clientes: Cliente[] = [];
+contaApi.get(
+	"/client/list",
+	(req: Request, res: Response, next: NextFunction) => {
+		httpProxy(process.env.PROXY_TRANSACOES_URL + "", {
+			userResDecorator: (
+				proxyRes: IncomingMessage,
+				proxyResData: any,
+				userReq: Request,
+				userRes: Response
+			): any => {
+				if (proxyRes.statusCode === HttpStatus.SUCCESS) {
+					const str = Buffer.from(proxyResData).toString("utf-8");
+					const clientes: Cliente[] = [];
 
-				JSON.parse(str).array.forEach(
-					(c: Client) => {
+					JSON.parse(str).array.forEach((c: Client) => {
 						const cliente = {
 							nome: c.name,
 							CPF: c.cpf,
@@ -59,17 +59,17 @@ contaApi.get("/client/list", (req: Request, res: Response, next: NextFunction) =
 							saldo: c.balance,
 						};
 						clientes.push(cliente);
-					}
-				);
-				userRes.status(HttpStatus.SUCCESS);
-				return { clientes };
-			} else {
-				userRes.status(HttpStatus.INTERNAL_ERROR);
-				return { message: "Não foi possível recuperar os clientes" };
-			}
-		},
-	})(req, res, next);
-});
+					});
+					userRes.status(HttpStatus.SUCCESS);
+					return { clientes };
+				} else {
+					userRes.status(HttpStatus.INTERNAL_ERROR);
+					return { message: "Não foi possível recuperar os clientes" };
+				}
+			},
+		})(req, res, next);
+	}
+);
 
 //Arrumar
 contaApi.get(
@@ -95,16 +95,15 @@ contaApi.get(
 					const transacoes: Cliente[] = [];
 
 					JSON.parse(str).array.forEach((c: Client) => {
-							const cliente: Cliente = {
-								nome: c.name,
-								CPF: c.cpf,
-								limite: c.limit,
-								nomeGerente: c.managerName,
-								saldo: c.balance,
-							};
-							transacoes.push(cliente);
-						}
-					);
+						const cliente: Cliente = {
+							nome: c.name,
+							CPF: c.cpf,
+							limite: c.limit,
+							nomeGerente: c.managerName,
+							saldo: c.balance,
+						};
+						transacoes.push(cliente);
+					});
 
 					userRes.status(HttpStatus.SUCCESS);
 					return { transacoes };
@@ -131,22 +130,21 @@ contaApi.get(
 					const str = Buffer.from(proxyResData).toString("utf-8");
 					const clientes: any = [];
 
-					JSON.parse(str).array?.forEach(
-						(c: PendingAccount) => {
-							const conta = {
-								conta: {
-									id: c.accountNumber,
-								},
-								CPF: c.cpf,
-								nome: c.name,
-								salario: c.wage,
-							};
-							clientes.push(conta);
-						}
-					);
+					const parsedResponse = JSON.parse(str);
+					parsedResponse.forEach((c: PendingAccount) => {
+						const conta = {
+							conta: {
+								id: c.accountNumber,
+							},
+							CPF: c.cpf,
+							nome: c.name,
+							salario: c.wage,
+						};
+						clientes.push(conta);
+					});
 
 					userRes.status(HttpStatus.SUCCESS);
-					return { contas: clientes };
+					return { clientes };
 				} else {
 					userRes.status(HttpStatus.INTERNAL_ERROR);
 					return { message: "Não foi possível recuperar os clientes" };

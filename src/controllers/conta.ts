@@ -167,7 +167,8 @@ contaApi.get(
 				if (proxyRes.statusCode === HttpStatus.SUCCESS) {
 					const str = Buffer.from(proxyResData).toString("utf-8");
 					const clientes: any = [];
-					JSON.parse(str).array.forEach(
+
+					JSON.parse(str).forEach(
 						(c: { cpf: any; name: any; balance: any }) => {
 							const cliente = {
 								CPF: c.cpf,
@@ -201,7 +202,8 @@ contaApi.get(
 				if (proxyRes.statusCode === HttpStatus.SUCCESS) {
 					const str = Buffer.from(proxyResData).toString("utf-8");
 					const clientes: any = [];
-					JSON.parse(str).array.forEach(
+
+					JSON.parse(str).forEach(
 						(c: { cpf: any; name: any; balance: any }) => {
 							const cliente = {
 								CPF: c.cpf,

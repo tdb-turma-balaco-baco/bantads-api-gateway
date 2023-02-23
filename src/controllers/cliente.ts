@@ -39,6 +39,9 @@ clienteApi.get(
 							tipoEndereco: objBody.clientAdress.type,
 						},
 					};
+
+					// FIXME: Precisa incluir a conta bancária...
+
 					userRes.status(HttpStatus.SUCCESS);
 					return { cliente };
 				} else {
@@ -173,7 +176,7 @@ clienteApi.put(
 		httpProxy(process.env.PROXY_SAGA_URL + "", {
 			proxyReqBodyDecorator(bodyContent, _srcReq) {
 				const retBody = {
-					accountNumber: bodyContent.id,
+					accountNumber: bodyContent.conta.id,
 					statusReason: bodyContent.conta.motivoRecusa,
 				};
 				bodyContent = retBody;
@@ -203,7 +206,7 @@ clienteApi.put(
 		httpProxy(process.env.PROXY_SAGA_URL + "", {
 			proxyReqBodyDecorator(bodyContent, _srcReq) {
 				const retBody = {
-					accountNumber: bodyContent.id,
+					accountNumber: bodyContent.conta.id,
 					statusReason: bodyContent.conta.motivoRecusa,
 				};
 				bodyContent = retBody;
